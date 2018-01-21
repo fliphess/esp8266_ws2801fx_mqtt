@@ -5,7 +5,7 @@ const char index_html[] PROGMEM = R"=====(
     <meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
     <meta name='viewport' content='width=device-width' />
 
-    <title>WS2801FX RGBLedStrip</title>
+    <title>Flipstrip RGB Smart LED</title>
 
     <script type='text/javascript' src='main.js'></script>
 
@@ -70,7 +70,7 @@ const char index_html[] PROGMEM = R"=====(
     </style>
 </head>
 <body>
-    <h1>RGB Smart LED</h1>
+    <h1>Flipstrip RGB Smart LED</h1>
     <canvas id='colorbar' width='75' height='1080'></canvas>
 
     <div id='controls'>

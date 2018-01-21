@@ -1,9 +1,10 @@
+#!/usr/bin/env bash
 
 function runtests() {
-    echo -n "Testing / endpoint $TEST_ROUNDS times to test the main index page for errors"
+    echo -n "Testing /modes endpoint $TEST_ROUNDS times to test the modes table page for errors"
 
     for i in $( seq ${TEST_ROUNDS} ) ; do
-        COMMAND="curl -qs --max-time 3 http://$IP_ADDRESS/"
+        COMMAND="curl -v --max-time 3 http://$IP_ADDRESS/modes 2>&1"
         OUTPUT="$( eval ${COMMAND} )"
 
         if [ "$?" != 0 ] ; then

@@ -1,9 +1,10 @@
+#!/usr/bin/env bash
 
 
 function test_get() {
     echo -n "Testing /set GET endpoint $TEST_ROUNDS times to test the set input page for errors"
     for i in $( seq ${TEST_ROUNDS} ) ; do
-        COMMAND="curl --max-time 3 http://$IP_ADDRESS/set -v 2>&1"
+        COMMAND="curl -v --max-time 3 http://$IP_ADDRESS/set 2>&1"
         OUTPUT="$( eval $COMMAND )"
 
         if [ "$?" != 0 ] ; then
@@ -31,7 +32,7 @@ function test_post() {
 
         for COLOR in ${COLORS}; do
             for MODE in $( seq 0 10 ) ; do
-                COMMAND="curl --max-time 3 http://$IP_ADDRESS/set?m=\"$MODE\"&c=\"$COLOR\" -v 2>&1"
+                COMMAND="curl -v --max-time 3 \"http://$IP_ADDRESS/set?b=+&m=$MODE&c=$COLOR\" 2>&1"
                 OUTPUT="$( eval ${COMMAND} )"
 
                 if [ "$?" != 0 ] ; then

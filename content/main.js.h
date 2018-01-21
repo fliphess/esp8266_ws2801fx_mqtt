@@ -116,4 +116,5 @@ function setup(){
     can.addEventListener('touchstart', Touch, false);
     can.addEventListener('click', Click, false);
 }
+
 )=====";

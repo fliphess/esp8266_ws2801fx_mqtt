@@ -1,8 +1,9 @@
+#!/usr/bin/env bash
 
 
 function test_get() {
     for i in $(seq 3 ); do
-        COMMAND="curl --max-time 3 http://$IP_ADDRESS/json -v 2>&1"
+        COMMAND="curl -qs --max-time 3 http://$IP_ADDRESS/json 2>&1"
         OUTPUT="$( eval ${COMMAND} )"
 
         if [ "$?" != 0 ] ; then
@@ -17,13 +18,27 @@ function test_get() {
     done
 }
 
-function test_post() {
-    COLORS="ff000 00ff00 0000ff ffffff 80ff56"
+COLOR1='{\"r\":0,\"g\":255,\"b\":255}'
+COLOR2='{\"r\":0,\"g\":0,\"b\":255}'
+COLOR3='{\"r\":255,\"g\":0,\"b\":0}'
+COLOR4='{\"r\":0,\"g\":0,\"b\":150}'
+COLOR5='{\"r\":2,\"g\":20,\"b\":200}'
+COLOR6='{\"r\":255,\"g\":255,\"b\":255}'
 
-    for COLOR in ${COLORS}; do
+function test_post() {
+    COLORS=(
+      $COLOR1
+      $COLOR2
+      $COLOR3
+      $COLOR4
+      $COLOR5
+      $COLOR6
+    )
+
+    for COLOR in ${COLORS[@]}; do
         for MODE in $( seq 0 10 ) ; do
-            DATA="{\"color\":\"$COLOR\",\"mode\":$MODE,\"speed\":200,\"brightness\":255}"
-            COMMAND="curl --max-time 3 -d \"${DATA}\" http://${IP_ADDRESS}/json -v 2>&1"
+            DATA="{\"color\":$COLOR,\"effect\":$MODE,\"speed\":200,\"brightness\":255}"
+            COMMAND="curl -v --max-time 3 -d \"${DATA}\" http://${IP_ADDRESS}/json 2>&1"
             OUTPUT="$( eval ${COMMAND} )"
 
             if [ "$?" != 0 ] ; then
@@ -36,13 +51,12 @@ function test_post() {
                 return 1
             fi
           done
-          sleep 1
     done
 }
 
 
 function runtests() {
-    echo -n "Testing /json endpoint $TEST_ROUNDS times to test the json input page for errors"
+    echo -n "Testing /json endpoint $TEST_ROUNDS * 50 times to test the json input page for errors"
 
     for i in $( seq ${TEST_ROUNDS} ) ; do
         test_get
