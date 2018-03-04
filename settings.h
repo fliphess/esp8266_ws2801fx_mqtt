@@ -9,7 +9,7 @@
 #define BAUD_RATE 115200
 
 // Ledstrip 1
-//#define LED_COUNT 46
+//#define LED_COUNT 45
 //#define LED_PIXEL_ORDER WS2801_RBG
 //#define HOSTNAME "flipstrip1.home"
 
@@ -24,7 +24,7 @@
 //#define HOSTNAME "flipstrip3.home"
 
 // Ledstrip 4
-#define LED_COUNT 6
+#define LED_COUNT 4
 #define LED_PIXEL_ORDER WS2801_BGR
 #define HOSTNAME "flipstrip4.home"
 

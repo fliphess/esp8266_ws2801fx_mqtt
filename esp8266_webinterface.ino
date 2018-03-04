@@ -1,7 +1,5 @@
 #include <FS.h>
 #include <EEPROM.h>
-#include <WiFiUdp.h>
-#include <ArduinoOTA.h>
 #include <ArduinoJson.h>
 #include <DNSServer.h>
 #include <ESP8266WiFi.h>
@@ -10,6 +8,8 @@
 #include <WiFiManager.h>
 #include <WS2801FX.h>
 #include <ESP8266mDNS.h>
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
 
 // * Include settings
 #include "settings.h"
@@ -24,7 +24,7 @@
 Ticker ticker;
 
 // * Initiate HTTP server
-ESP8266WebServer webserver = ESP8266WebServer(HTTP_PORT);
+ESP8266WebServer webserver (HTTP_PORT);
 
 // * Initiate Led driver
 WS2801FX ledstrip = WS2801FX(LED_COUNT, LED_DATA_PIN, LED_CLOCK_PIN, LED_PIXEL_ORDER);
