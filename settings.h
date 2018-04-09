@@ -24,9 +24,14 @@
 //#define HOSTNAME "flipstrip3.home"
 
 // Ledstrip 4
-#define LED_COUNT 4
-#define LED_PIXEL_ORDER WS2801_BGR
-#define HOSTNAME "flipstrip4.home"
+//#define LED_COUNT 46
+//#define LED_PIXEL_ORDER WS2801_RBG
+//#define HOSTNAME "flipstrip4.home"
+
+// Ledstrip 5
+#define LED_COUNT 19
+#define LED_PIXEL_ORDER WS2801_RBG
+#define HOSTNAME "flipstrip5.home"
 
 // * Turn on debug print to serial device
 #define DEBUG_PRINT
@@ -39,6 +44,12 @@
 
 // * Wifi timeout in milliseconds
 #define WIFI_TIMEOUT 30000
+
+// * Configure watchdog
+#define OSWATCH_RESET_TIME 30
+
+// * To be filled on each loop
+static unsigned long last_loop;
 
 // * Startup defaults for the led strip
 #define DEFAULT_BASE_COLOR 0xFF5900
@@ -79,3 +90,4 @@ char LEDSTRIP_JSON_OUTPUT[100];
 
 // * Will be filled with html for modes listing
 String modes = "";
+

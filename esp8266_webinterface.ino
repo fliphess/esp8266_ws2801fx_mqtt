@@ -23,6 +23,9 @@
 // * Initiate led blinker library
 Ticker ticker;
 
+// * Initiate the watchdog
+Ticker tickerOSWatch;
+
 // * Initiate HTTP server
 ESP8266WebServer webserver (HTTP_PORT);
 
@@ -35,13 +38,28 @@ WiFiClient espClient;
 // * Initiate MQTT client
 PubSubClient mqtt_client(espClient);
 
+// **********************************
+// * Watchdog                       *
+// **********************************
+
+void ICACHE_RAM_ATTR osWatch(void)
+{
+    unsigned long t = millis();
+    unsigned long last_run = abs(t - last_loop);
+    if(last_run >= (OSWATCH_RESET_TIME * 1000)) {
+      // save the hit here to eeprom or to rtc memory if needed
+        ESP.restart();  // normal reboot
+        //ESP.reset();  // hard reset
+    }
+}
 
 // **********************************
 // * WIFI                           *
 // **********************************
 
 // * Gets called when WiFiManager enters configuration mode
-void configModeCallback(WiFiManager *myWiFiManager) {
+void configModeCallback(WiFiManager *myWiFiManager)
+{
 
     #ifdef DEBUG_PRINT
     Serial.println(F("Entered config mode"));
@@ -55,31 +73,32 @@ void configModeCallback(WiFiManager *myWiFiManager) {
     ticker.attach(0.2, tick);
 }
 
-
 // **********************************
 // * Ticker (System LED Blinker)    *
 // **********************************
 
 // * Blink on-board Led
-void tick() {
+void tick()
+{
     // * Toggle state
     int state = digitalRead(BUILTIN_LED);    // * Get the current state of GPIO1 pin
     digitalWrite(BUILTIN_LED, !state);       // * Set pin to the opposite state
 }
-
 
 // **********************************
 // * Led Controller                 *
 // **********************************
 
 // * Get the current ON or OFF state of the ledstrip
-const char* get_on_or_off_state() {
+const char* get_on_or_off_state()
+{
     // * If either stopped or one in brightness, color or mode are zero, return OFF
     return ((!ledstrip.isRunning()) || ledstrip.getMode() == uint8_t(0) || ledstrip.getBrightness() == uint8_t(0) || ledstrip.getColor() == uint32_t(0)) ? STATE_OFF : STATE_ON;
 }
 
 // * Update the current state of the led controller as a json object
-void update_json_output_buffer() {
+void update_json_output_buffer()
+{
     StaticJsonBuffer<BUFFER_SIZE> jsonBuffer;
     JsonObject& root = jsonBuffer.createObject();
 
@@ -99,7 +118,8 @@ void update_json_output_buffer() {
 }
 
 // * Process the incoming json message by dispatching each element to it's own library function
-bool process_json_input(char* payload) {
+bool process_json_input(char* payload)
+{
 
     StaticJsonBuffer<BUFFER_SIZE> jsonBuffer;
     JsonObject& root = jsonBuffer.parseObject(payload);
@@ -179,7 +199,8 @@ bool process_json_input(char* payload) {
 }
 
 // * Initiate the ledstrip controller library
-void setup_led_controller() {
+void setup_led_controller()
+{
     ledstrip.init();
     ledstrip.setMode(DEFAULT_BASE_MODE);
     ledstrip.setColor(DEFAULT_BASE_COLOR);
@@ -192,31 +213,34 @@ void setup_led_controller() {
     #endif
 }
 
-
 // **********************************
 // * Webserver functions            *
 // **********************************
 
 // * The main web page
-void webserver_handle_index_html() {
+void webserver_handle_index_html()
+{
     // * Send the main index file
     webserver.send_P(200, "text/html", index_html);
 }
 
 // * Javascript endpoint
-void webserver_handle_main_js() {
+void webserver_handle_main_js()
+{
     // * Send "our" javascript code
     webserver.send_P(200, "application/javascript", main_js);
 }
 
 // * Send a html table with all effect modes
-void webserver_handle_modes() {
+void webserver_handle_modes()
+{
     // * Return a html table with all modes the library provides
     webserver.send(200, "text/plain", modes);
 }
 
 // * Handle json input string
-void webserver_handle_json() {
+void webserver_handle_json()
+{
     // * Handle json input from http webserver
     String json_input = webserver.arg("plain");
 
@@ -239,7 +263,8 @@ void webserver_handle_json() {
 }
 
 // * Return the status of the ledstrip as a json string
-void webserver_handle_status() {
+void webserver_handle_status()
+{
     // * Update the current state
     update_json_output_buffer();
 
@@ -248,13 +273,15 @@ void webserver_handle_status() {
 }
 
 // * Return ON or OFF depending on the state of the ledstrip
-void webserver_handle_on_or_off_state() {
+void webserver_handle_on_or_off_state()
+{
     const char* state = get_on_or_off_state();
     webserver.send(200, "text/plain", state);
 }
 
 // * Handle input commands from the web interface
-void webserver_handle_set() {
+void webserver_handle_set()
+{
     for (uint8_t argument=0; argument < webserver.args(); argument++){
 
         // * Process Color
@@ -295,13 +322,15 @@ void webserver_handle_set() {
 }
 
 // * Return a 404 when the page does not exist
-void webserver_handle_not_found() {
+void webserver_handle_not_found()
+{
     // * Handle 404 not found error
     webserver.send(404, "text/plain", F("File Not Found"));
 }
 
 // * Get all effect modes from ws2801 library and create a html object that's included in the frontpage
-void setup_led_html_modes() {
+void setup_led_html_modes()
+{
     for(uint8_t i=0; i < ledstrip.getModeCount(); i++) {
         modes += "<li><a href='#' class='m' id='";
         modes += i;
@@ -312,7 +341,8 @@ void setup_led_html_modes() {
 }
 
 // * Setup the webserver
-void setup_webserver() {
+void setup_webserver()
+{
 
     #ifdef DEBUG_PRINT
     Serial.println(F("HTTP Webserver setup"));
@@ -340,7 +370,8 @@ void setup_webserver() {
 // **********************************
 
 // * Send the current state to the MQTT broker
-void send_mqtt_state() {
+void send_mqtt_state()
+{
     update_json_output_buffer();
 
     #ifdef DEBUG_PRINT
@@ -358,7 +389,8 @@ void send_mqtt_state() {
 }
 
 // * Callback for incoming MQTT messages
-void mqtt_callback(char* topic, byte* payload_in, unsigned int length) {
+void mqtt_callback(char* topic, byte* payload_in, unsigned int length)
+{
 
     char* payload = (char *) malloc(length + 1);
     memcpy(payload, payload_in, length);
@@ -383,7 +415,8 @@ void mqtt_callback(char* topic, byte* payload_in, unsigned int length) {
 }
 
 // * Reconnect to MQTT server and subscribe to in and out topics
-bool mqtt_reconnect() {
+bool mqtt_reconnect()
+{
     // * Loop until we're reconnected
     int MQTT_RECONNECT_RETRIES = 0;
 
@@ -444,7 +477,8 @@ bool mqtt_reconnect() {
 // * EEPROM helpers                 *
 // **********************************
 
-String read_eeprom(int offset, int len) {
+String read_eeprom(int offset, int len)
+{
 
     String res = "";
     for (int i = 0; i < len; ++i) {
@@ -459,7 +493,8 @@ String read_eeprom(int offset, int len) {
     return res;
 }
 
-void write_eeprom(int offset, int len, String value) {
+void write_eeprom(int offset, int len, String value)
+{
 
     #ifdef DEBUG_PRINT
     Serial.print(F("write_eeprom(): "));
@@ -482,7 +517,8 @@ void write_eeprom(int offset, int len, String value) {
 bool shouldSaveConfig = false;
 
 // * Callback notifying us of the need to save config
-void save_wifi_config_callback () {
+void save_wifi_config_callback ()
+{
 
     #ifdef DEBUG_PRINT
     Serial.println(F("Should save config"));
@@ -495,7 +531,8 @@ void save_wifi_config_callback () {
 // * Setup OTA                      *
 // **********************************
 
-void setup_ota() {
+void setup_ota()
+{
 
     #ifdef DEBUG_PRINT
     Serial.println(F("Arduino OTA activated."));
@@ -543,12 +580,12 @@ void setup_ota() {
     #endif
 }
 
-
 // **********************************
 // * Setup MDNS discovery service   *
 // **********************************
 
-void setup_mdns() {
+void setup_mdns()
+{
     bool mdns_result = MDNS.begin(HOSTNAME);
 
     #ifdef DEBUG_PRINT
@@ -565,7 +602,14 @@ void setup_mdns() {
 // * Setup Main                     *
 // **********************************
 
-void setup(){
+void setup()
+{
+    // * Update watchdog value
+    last_loop = millis();
+
+    // Initiate watchdog ticker
+    tickerOSWatch.attach_ms(((OSWATCH_RESET_TIME / 3) * 1000), osWatch);
+
     // * Configure Serial and EEPROM
     Serial.begin(BAUD_RATE);
     EEPROM.begin(512);
@@ -686,7 +730,10 @@ void setup(){
 // * Loop                           *
 // **********************************
 
-void loop() {
+void loop()
+{
+    last_loop = millis();
+
     ledstrip.service();
     webserver.handleClient();
     ArduinoOTA.handle();
@@ -701,7 +748,8 @@ void loop() {
                 LAST_RECONNECT_ATTEMPT = 0;
             }
         }
-    } else {
+    }
+    else {
         mqtt_client.loop();
     }
 }
