@@ -9,29 +9,30 @@
 #define BAUD_RATE 115200
 
 // Ledstrip 1
-//#define LED_COUNT 45
-//#define LED_PIXEL_ORDER WS2801_RBG
-//#define HOSTNAME "flipstrip1.home"
+#define LED_COUNT 24
+#define LED_PIXEL_ORDER WS2801_RBG
+#define HOSTNAME "flipstrip1"
 
 // Ledstrip 2
 //#define LED_COUNT 25
 //#define LED_PIXEL_ORDER WS2801_RBG
-//#define HOSTNAME "flipstrip2.home"
+//#define HOSTNAME "flipstrip2"
 
 // Ledstrip 3
 //#define LED_COUNT 19
 //#define LED_PIXEL_ORDER WS2801_RBG
-//#define HOSTNAME "flipstrip3.home"
+//#define HOSTNAME "flipstrip3"
 
 // Ledstrip 4
-//#define LED_COUNT 46
-//#define LED_PIXEL_ORDER WS2801_RBG
-//#define HOSTNAME "flipstrip4.home"
+// #define LED_COUNT 45
+// #define LED_PIXEL_ORDER WS2801_RBG
+// #define HOSTNAME "flipstrip4"
 
 // Ledstrip 5
-#define LED_COUNT 19
-#define LED_PIXEL_ORDER WS2801_RBG
-#define HOSTNAME "flipstrip5.home"
+// #define LED_COUNT 19
+// #define LED_PIXEL_ORDER WS2801_RBG
+// #define HOSTNAME "flipstrip5"
+
 
 // * Turn on debug print to serial device
 #define DEBUG_PRINT
@@ -76,8 +77,8 @@ char MQTT_USER[32] = "";
 char MQTT_PASS[32] = "";
 
 // * MQTT in and out topic based on hostname
-char MQTT_IN_TOPIC[strlen(HOSTNAME) + 4];      // * Topic in will be: <HOSTNAME>/in
-char MQTT_OUT_TOPIC[strlen(HOSTNAME) + 5];     // * Topic out will be: <HOSTNAME>/out
+char MQTT_IN_TOPIC[14 + strlen(HOSTNAME) + 4];      // * Topic in will be: lights/ws2801/<HOSTNAME>/in
+char MQTT_OUT_TOPIC[14 + strlen(HOSTNAME) + 5];     // * Topic out will be: lights/ws2801/<HOSTNAME>/out
 
 // * MQTT Last reconnection counter
 long LAST_RECONNECT_ATTEMPT = 0;

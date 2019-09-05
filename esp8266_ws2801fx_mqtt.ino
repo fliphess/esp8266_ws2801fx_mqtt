@@ -27,7 +27,7 @@ Ticker ticker;
 Ticker tickerOSWatch;
 
 // * Initiate HTTP server
-ESP8266WebServer webserver (HTTP_PORT);
+ESP8266WebServer webserver(HTTP_PORT);
 
 // * Initiate Led driver
 WS2801FX ledstrip = WS2801FX(LED_COUNT, LED_DATA_PIN, LED_CLOCK_PIN, LED_PIXEL_ORDER);
@@ -81,8 +81,8 @@ void configModeCallback(WiFiManager *myWiFiManager)
 void tick()
 {
     // * Toggle state
-    int state = digitalRead(BUILTIN_LED);    // * Get the current state of GPIO1 pin
-    digitalWrite(BUILTIN_LED, !state);       // * Set pin to the opposite state
+    int state = digitalRead(LED_BUILTIN);    // * Get the current state of GPIO1 pin
+    digitalWrite(LED_BUILTIN, !state);       // * Set pin to the opposite state
 }
 
 // **********************************
@@ -286,7 +286,8 @@ void webserver_handle_set()
 
         // * Process Color
         if (webserver.argName(argument) == "c") {
-            uint32_t color = (uint32_t) strtol(&webserver.arg(argument)[0], NULL, 16);
+            uint32_t color = (uint32_t) strtol(webserver.arg(argument).c_str(), NULL, 16);
+
             if(color >= 0x000000 && color <= 0xFFFFFF) {
                 ledstrip.setColor(color);
             }
@@ -294,7 +295,7 @@ void webserver_handle_set()
 
         // * Process FX Mode
         if (webserver.argName(argument) == "m") {
-            uint8_t led_mode = (uint8_t) strtol(&webserver.arg(argument)[0], NULL, 10);
+            uint8_t led_mode = (uint8_t) strtol(webserver.arg(argument).c_str(), NULL, 10);
             ledstrip.setMode(led_mode % ledstrip.getModeCount());
         }
 
@@ -615,7 +616,7 @@ void setup()
     EEPROM.begin(512);
 
     // * Set led pin as output
-    pinMode(BUILTIN_LED, OUTPUT);
+    pinMode(LED_BUILTIN, OUTPUT);
 
     // * Start ticker with 0.5 because we start in AP mode and try to connect
     ticker.attach(0.6, tick);
@@ -696,7 +697,7 @@ void setup()
 
     // * Keep LED on
     ticker.detach();
-    digitalWrite(BUILTIN_LED, LOW);
+    digitalWrite(LED_BUILTIN, LOW);
 
     // * Configure OTA
     setup_ota();
@@ -713,9 +714,9 @@ void setup()
     // * Startup MDNS Service
     setup_mdns();
 
-    // * Configure MQTT
-    snprintf(MQTT_IN_TOPIC, sizeof MQTT_IN_TOPIC, "%s/in", HOSTNAME);
-    snprintf(MQTT_OUT_TOPIC, sizeof MQTT_OUT_TOPIC, "%s/out", HOSTNAME);
+    //  * Configure MQTT
+    snprintf(MQTT_IN_TOPIC, sizeof MQTT_IN_TOPIC, "lights/ws2801/%s/in", HOSTNAME);
+    snprintf(MQTT_OUT_TOPIC, sizeof MQTT_OUT_TOPIC, "lights/ws2801/%s/out", HOSTNAME);
 
     mqtt_client.setServer(MQTT_HOST, atoi(MQTT_PORT));
     mqtt_client.setCallback(mqtt_callback);
