@@ -1,5 +1,8 @@
 # ESP8266 RGB Ledstrip controller for ws2801 5050 5v led strips
 
+**This repository is unmaintained since I moved all my esp ledstrips to esphome**
+
+
 This little sketch is created by copy pasting from many other led controller projects for esp8266 nodemcu.
 (Thanks to all who semi-voluntary contributed to this project by adding their code on github :))
 
